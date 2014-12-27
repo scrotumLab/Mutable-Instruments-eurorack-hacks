@@ -202,13 +202,17 @@ void MacroOscillator::RenderTriple(
     analog_oscillator_[i + 1].set_pitch(pitch_ + detune + (12 << 7));
   }
 
-  // AnalogOscillatorShape shape = (shape_ == MACRO_OSC_SHAPE_TRIPLE_SAW 
-  //    ? OSC_SHAPE_SAW 
-  //  : (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE ? OSC_SHAPE_SQUARE : OSC_SHAPE_TRIANGLE));
+
+  uint8_t bitshiftr = 3;
+
   AnalogOscillatorShape shape ;
   if (shape_ ==  MACRO_OSC_SHAPE_TRIPLE_SAW) shape = OSC_SHAPE_SAW;
   else if (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE) shape = OSC_SHAPE_SQUARE;
-  else shape = OSC_SHAPE_TRIANGLE;
+  else if (shape_ == MACRO_OSC_SHAPE_TRIPLE_TRIANGLE) shape = OSC_SHAPE_TRIANGLE_FOLD;  
+  else {
+        shape = OSC_SHAPE_SINE;
+        bitshiftr = 4;
+        }
       
   analog_oscillator_[0].set_shape(shape);
   analog_oscillator_[1].set_shape(shape);
@@ -231,9 +235,9 @@ void MacroOscillator::RenderTriple(
   
   for (uint8_t i = 0; i < size; ++i) {
     int32_t sample = 0;
-    sample += static_cast<int32_t>(voice_1_buffer[i >> 1]) * 4 >> 3;
-    sample += static_cast<int32_t>(voice_2_buffer[i >> 1]) * 5 >> 3;
-    sample += static_cast<int32_t>(voice_3_buffer[i >> 1]) * 5 >> 3;
+    sample += static_cast<int32_t>(voice_1_buffer[i >> 1]) * 4 >> bitshiftr;
+    sample += static_cast<int32_t>(voice_2_buffer[i >> 1]) * 5 >> bitshiftr;
+    sample += static_cast<int32_t>(voice_3_buffer[i >> 1]) * 5 >> bitshiftr;
     CLIP(sample);
     buffer[i] = sample;
   }
@@ -369,6 +373,7 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,  
+  &MacroOscillator::RenderTriple,    
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderSawComb,
