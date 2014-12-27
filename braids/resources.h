@@ -106,7 +106,6 @@ extern const int16_t ws_sine_fold[];
 extern const int16_t ws_tri_fold[];
 extern const uint8_t wt_waves[];
 extern const uint8_t wt_map[];
-extern const uint8_t wt_code[];
 extern const uint16_t chr_characters[];
 #define STR_DUMMY 0  // dummy
 #define LUT_RESONATOR_COEFFICIENT 0
@@ -211,8 +210,6 @@ extern const uint16_t chr_characters[];
 #define WT_WAVES_SIZE 33024
 #define WT_MAP 1
 #define WT_MAP_SIZE 256
-#define WT_CODE 2
-#define WT_CODE_SIZE 1064
 #define CHR_CHARACTERS 0
 #define CHR_CHARACTERS_SIZE 256
 

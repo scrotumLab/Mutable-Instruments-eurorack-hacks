@@ -81,13 +81,14 @@ void Settings::Save() {
 }
 
 void Settings::CheckPaques() {
-  uint32_t hash;
-  MurmurHash3_x86_32(
-      data_.marquee_text,
-      strlen(data_.marquee_text),
-      0xcab055ee,
-      &hash);
-  paques_ = hash == 0x3032935a;
+  // uint32_t hash;
+  // MurmurHash3_x86_32(
+  //     data_.marquee_text,
+  //     strlen(data_.marquee_text),
+  //     0xcab055ee,
+  //     &hash);
+  // paques_ = hash == 0x3032935a;
+  paques_ = false;
 }
 
 const char* const boolean_values[] = { "OFF ", "ON " };
@@ -222,7 +223,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "BBv1", NULL },  // Placeholder for version string
+  { 0, 0, "BBv2", NULL },  // Placeholder for version string
 };
 
 /* static */

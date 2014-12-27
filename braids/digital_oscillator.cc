@@ -2136,6 +2136,7 @@ void DigitalOscillator::RenderDigitalModulation(
   state_.dmd.data_byte = data_byte;
 }
 
+/*
 void DigitalOscillator::RenderQuestionMark(
     const uint8_t* sync,
     int16_t* buffer,
@@ -2203,6 +2204,7 @@ void DigitalOscillator::RenderQuestionMark(
   }
   phase_ = phase;
 }
+*/
 
 /*
 void DigitalOscillator::RenderYourAlgo(
@@ -2249,7 +2251,7 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderDigitalModulation,
   // &DigitalOscillator::RenderYourAlgo,
 
-  &DigitalOscillator::RenderQuestionMark
+  // &DigitalOscillator::RenderQuestionMark
 };
 
 }  // namespace braids
