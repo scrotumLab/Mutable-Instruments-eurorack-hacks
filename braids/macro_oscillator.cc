@@ -205,18 +205,24 @@ void MacroOscillator::RenderTriple(
 
   uint8_t bitshiftr = 3;
 
-  AnalogOscillatorShape shape ;
+  AnalogOscillatorShape shape = OSC_SHAPE_SAW;
   if (shape_ ==  MACRO_OSC_SHAPE_TRIPLE_SAW) shape = OSC_SHAPE_SAW;
   else if (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE) shape = OSC_SHAPE_SQUARE;
   else if (shape_ == MACRO_OSC_SHAPE_TRIPLE_TRIANGLE) shape = OSC_SHAPE_TRIANGLE_FOLD;  
-  else {
+  else if (shape_ == MACRO_OSC_SHAPE_TRIPLE_SINE) {
         shape = OSC_SHAPE_SINE;
         bitshiftr = 4;
         }
-      
-  analog_oscillator_[0].set_shape(shape);
-  analog_oscillator_[1].set_shape(shape);
-  analog_oscillator_[2].set_shape(shape);
+  if (shape_ == MACRO_OSC_SHAPE_SQU_SAW_TRI) {
+      analog_oscillator_[0].set_shape(OSC_SHAPE_SQUARE);
+      analog_oscillator_[1].set_shape(OSC_SHAPE_SAW);
+      analog_oscillator_[2].set_shape(OSC_SHAPE_TRIANGLE_FOLD);
+  } 
+  else {      
+      analog_oscillator_[0].set_shape(shape);
+      analog_oscillator_[1].set_shape(shape);
+      analog_oscillator_[2].set_shape(shape);
+  }
   
   // Use half the sample rate.
   uint8_t half_size = size >> 1;
@@ -373,6 +379,7 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,  
+  &MacroOscillator::RenderTriple,    
   &MacroOscillator::RenderTriple,    
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,

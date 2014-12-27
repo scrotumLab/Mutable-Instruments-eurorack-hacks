@@ -103,7 +103,8 @@ const char* const algo_values[] = {
     "\x88\x88x3",
     "\x8C_x3",
     "^^x3",
-    "Sin3",
+    "SINS",
+    "\x8C\x88^3"
     "RING",
     "\x88\x89\x88\x89",
     "\x88\x88\x8E\x8E",
@@ -224,7 +225,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "BBv2", NULL },  // Placeholder for version string
+  { 0, 0, "BBv3", NULL },  // Placeholder for version string
 };
 
 /* static */
