@@ -81,13 +81,6 @@ void Settings::Save() {
 }
 
 void Settings::CheckPaques() {
-  // uint32_t hash;
-  // MurmurHash3_x86_32(
-  //     data_.marquee_text,
-  //     strlen(data_.marquee_text),
-  //     0xcab055ee,
-  //     &hash);
-  // paques_ = hash == 0x3032935a;
   paques_ = false;
 }
 
@@ -102,9 +95,9 @@ const char* const algo_values[] = {
     "\x8E\x8E\x8E\x8E",
     "\x88\x88x3",
     "\x8C_x3",
+    "\x8C\x88^3",
     "^^x3",
     "SINS",
-    "\x8C\x88^3"
     "RING",
     "\x88\x89\x88\x89",
     "\x88\x88\x8E\x8E",
@@ -129,12 +122,13 @@ const char* const algo_values[] = {
     "WMAP",
     "WLIN",
     "WTx4",
+    "WTx2",
     "NOIS",
     "TWNQ",
     "CLKN",
     "CLOU",
     "PRTC",
-    "QPSK",
+    "QPSK"
     // "NAME" // For your algorithm
 };
 
@@ -225,7 +219,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "BBv3", NULL },  // Placeholder for version string
+  { 0, 0, "BBv4", NULL },  // Placeholder for version string
 };
 
 /* static */

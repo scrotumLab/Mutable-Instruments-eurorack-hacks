@@ -1732,6 +1732,128 @@ void DigitalOscillator::RenderWaveParaphonic(
 
 }
 
+const int16_t intervals_a[65] = {
+  -24 SEMI, -24 SEMI, -24 SEMI + 4,
+  -23 SEMI, -22 SEMI, -21 SEMI, -20 SEMI, -19 SEMI, -18 SEMI,
+  -17 SEMI - 4, -17 SEMI,
+  -16 SEMI, -15 SEMI, -14 SEMI, -13 SEMI,
+  -12 SEMI - 4, -12 SEMI,
+  -11 SEMI, -10 SEMI, -9 SEMI, -8 SEMI,
+  -7 SEMI - 4, -7 SEMI,
+  -6 SEMI, -5 SEMI, -4 SEMI, -3 SEMI, -2 SEMI, -1 SEMI,
+  -24, -8, -4, 0, 4, 8, 24,
+  1 SEMI, 2 SEMI, 3 SEMI, 4 SEMI, 5 SEMI, 6 SEMI,
+  7 SEMI, 7 SEMI + 4,
+  8 SEMI, 9 SEMI, 10 SEMI, 11 SEMI,
+  12 SEMI, 12 SEMI + 4,
+  13 SEMI, 14 SEMI, 15 SEMI, 16 SEMI,
+  17 SEMI, 17 SEMI + 4,
+  18 SEMI, 19 SEMI, 20 SEMI, 21 SEMI, 22 SEMI, 23 SEMI,
+  24 SEMI - 4, 24 SEMI, 24 SEMI
+};
+
+const int16_t intervals_b[65] = {
+  -24 SEMI, -24 SEMI, -24 SEMI - 4,
+  -23 SEMI + 4, -22 SEMI  + 4, -21 SEMI  + 4, -20 SEMI  + 4, -19 SEMI  + 4, -18 SEMI  + 4,
+  -17 SEMI - 6, -17 SEMI  + 4,
+  -16 SEMI + 4, -15 SEMI + 4, -14 SEMI + 4, -13 SEMI + 4,
+  -12 SEMI - 6, -12 SEMI + 4,
+  -11 SEMI + 4, -10 SEMI + 4, -9 SEMI + 4, -8 SEMI + 4,
+  -7 SEMI - 6, -7 SEMI + 4,
+  -6 SEMI + 4, -5 SEMI + 4, -4 SEMI + 4, -3 SEMI + 4, -2 SEMI + 4, -1 SEMI + 4,
+  -12, -3, -3, 0, 3, 6, 12,
+  1 SEMI + 4, 2 SEMI + 4, 3 SEMI + 4, 4 SEMI + 4, 5 SEMI + 4, 6 SEMI + 4,
+  7 SEMI - 4, 7 SEMI + 6,
+  8 SEMI + 4, 9 SEMI + 4, 10 SEMI + 4, 11 SEMI + 4,
+  12 SEMI - 4, 12 SEMI + 6,
+  13 SEMI + 4, 14 SEMI + 4, 15 SEMI + 4, 16 SEMI + 4,
+  17 SEMI + 4, 17 SEMI + 6,
+  18 SEMI + 4, 19 SEMI + 4, 20 SEMI + 4, 21 SEMI + 4, 22 SEMI + 4, 23 SEMI + 4,
+  24 SEMI - 6, 24 SEMI, 24 SEMI
+};
+
+void DigitalOscillator::RenderWaveDuophonic(
+    const uint8_t* sync,
+    int16_t* buffer,
+    uint8_t size) {
+  if (strike_) {
+    for (uint8_t i = 0; i < 2; ++i) {
+      state_.saw.phase[i] = Random::GetWord();
+    }
+    strike_ = false;
+  }
+  
+  // Do not use an array here to allow these to be kept in arbitrary registers.
+  uint32_t phase_0, phase_1, phase_2;
+  uint32_t phase_increment[2];
+  uint32_t phase_increment_0;
+
+  phase_increment_0 = phase_increment_;
+  phase_0 = state_.saw.phase[0];
+  phase_1 = state_.saw.phase[1];
+  phase_2 = state_.saw.phase[2];
+
+
+  // for (uint8_t i = 0; i < 1; ++i) {
+  //   uint16_t detune_1 = chords[parameter_[1] >> 11][i];
+  //   uint16_t detune_2 = chords[((parameter_[1] >> 10) + 1) >> 1][i];
+  //   uint16_t detune_xfade = parameter_[1] << 6;
+  //   uint16_t detune = detune_1 + ((detune_2 - detune_1) * detune_xfade >> 16);
+  //   phase_increment[i] = ComputePhaseIncrement(pitch_ + detune);
+  // }
+
+  for (uint8_t i = 0; i < 2; ++i) {
+    int16_t detune_1 ;
+    int16_t detune_2 ;
+    if (i == 0) {
+        detune_1 = intervals_a[parameter_[1] >> 9];
+        detune_2 = intervals_a[((parameter_[1] >> 8) + 1) >> 1];
+    }
+    else {
+        detune_1 = intervals_b[parameter_[1] >> 9];
+        detune_2 = intervals_b[((parameter_[1] >> 8) + 1) >> 1];    
+    }
+    uint16_t xfade = parameter_[1] << 8;
+    int16_t detune = detune_1 + ((detune_2 - detune_1) * xfade >> 16);
+    phase_increment[i] = ComputePhaseIncrement(pitch_ + detune);
+  }
+
+  const uint8_t* wave_1 = wt_waves + mini_wave_line[parameter_[0] >> 10] * 129;
+  const uint8_t* wave_2 = wt_waves + mini_wave_line[(parameter_[0] >> 10) + 1] * 129;
+  uint16_t wave_xfade = parameter_[0] << 6;
+  
+  while (size--) {
+    int32_t sample = 0;
+    
+    phase_0 += phase_increment_0;
+    phase_1 += phase_increment[0];
+    phase_2 += phase_increment[1];
+
+    sample += Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
+    sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
+    sample += Crossfade(wave_1, wave_2, phase_2 >> 1, wave_xfade);    
+    // Should this be >> 1 ?
+    *buffer++ = sample >> 2;
+    
+    phase_0 += phase_increment_0;
+    phase_1 += phase_increment[0];
+    phase_2 += phase_increment[1];
+    
+    sample = 0;
+    sample += Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
+    sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
+    sample += Crossfade(wave_1, wave_2, phase_2 >> 1, wave_xfade);    
+    *buffer++ = sample >> 2;
+    size--;
+  }
+  
+  state_.saw.phase[0] = phase_0;
+  state_.saw.phase[1] = phase_1;
+  state_.saw.phase[2] = phase_2;
+
+}
+
+
 void DigitalOscillator::RenderFilteredNoise(
     const uint8_t* sync,
     int16_t* buffer,
@@ -2137,76 +2259,6 @@ void DigitalOscillator::RenderDigitalModulation(
 }
 
 /*
-void DigitalOscillator::RenderQuestionMark(
-    const uint8_t* sync,
-    int16_t* buffer,
-    uint8_t size) {
-  ClockedNoiseState* state = &state_.clk;
-  
-  if (strike_) {
-    state->rng_state = 0;
-    state->cycle_phase = 0;
-    state->sample = 10;
-    state->cycle_phase_increment = -1;
-    state->seed = 32767;
-    strike_ = false;
-  }
-  
-  uint32_t phase = phase_;
-  uint32_t increment = phase_increment_;
-  uint32_t dit_duration = 3600 + ((32767 - parameter_[0]) >> 2);
-  int32_t noise_threshold = 1024 + (parameter_[1] >> 3);
-  while (size--) {
-    phase += increment;
-    int32_t sample;
-    if (state->rng_state) {
-      sample = (Interpolate824(wav_sine, phase) * 3) >> 2;
-    } else {
-      sample = 0;
-    }
-    if (++state->cycle_phase > dit_duration) {
-      --state->sample;
-      if (state->sample == 0) {
-        ++state->cycle_phase_increment;
-        state->rng_state = !state->rng_state;
-
-        size_t address = state->cycle_phase_increment >> 2;
-        size_t shift = (state->cycle_phase_increment & 0x3) << 1;
-        state->sample = (2 << ((wt_code[address] >> shift) & 3)) - 1;
-        if (state->sample == 15) {
-          state->sample = 100;
-          state->rng_state = 0;
-          state->cycle_phase_increment = - 1;
-        }
-        phase = 1L << 30;
-      }
-      state->cycle_phase = 0;
-    }
-    state->seed += Random::GetSample() >> 2;
-    int32_t noise_intensity = state->seed >> 8;
-    if (noise_intensity < 0) {
-      noise_intensity = -noise_intensity;
-    }
-    if (noise_intensity < noise_threshold) {
-      noise_intensity = noise_threshold;
-    }
-    if (noise_intensity > 16000) {
-      noise_intensity = 16000;
-    }
-    int32_t noise = (Random::GetSample() * noise_intensity >> 15);
-    noise = noise * wav_sine[(phase >> 22) & 0xff] >> 15;
-    sample += noise;
-    CLIP(sample);
-    int32_t distorted = sample * sample >> 14;
-    sample += distorted * parameter_[1] >> 15;
-    CLIP(sample);
-    *buffer++ = sample;
-  }
-  phase_ = phase;
-}
-*/
-
-/*
 void DigitalOscillator::RenderYourAlgo(
     const uint8_t* sync,
     int16_t* buffer,
@@ -2243,6 +2295,7 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderWaveMap,
   &DigitalOscillator::RenderWaveLine,
   &DigitalOscillator::RenderWaveParaphonic,
+  &DigitalOscillator::RenderWaveDuophonic,  
   &DigitalOscillator::RenderFilteredNoise,
   &DigitalOscillator::RenderTwinPeaksNoise,
   &DigitalOscillator::RenderClockedNoise,
@@ -2251,7 +2304,6 @@ DigitalOscillator::RenderFn DigitalOscillator::fn_table_[] = {
   &DigitalOscillator::RenderDigitalModulation,
   // &DigitalOscillator::RenderYourAlgo,
 
-  // &DigitalOscillator::RenderQuestionMark
 };
 
 }  // namespace braids
