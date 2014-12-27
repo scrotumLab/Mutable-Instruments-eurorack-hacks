@@ -202,9 +202,9 @@ void MacroOscillator::RenderTriple(
     analog_oscillator_[i + 1].set_pitch(pitch_ + detune + (12 << 7));
   }
 
-  AnalogOscillatorShape shape = shape_ == MACRO_OSC_SHAPE_TRIPLE_SAW
-      ? OSC_SHAPE_SAW
-      : OSC_SHAPE_SQUARE;
+  AnalogOscillatorShape shape = (shape_ == MACRO_OSC_SHAPE_TRIPLE_SAW 
+      ? OSC_SHAPE_SAW 
+    : (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE ? OSC_SHAPE_SQUARE : OSC_SHAPE_TRIANGLE));     
   analog_oscillator_[0].set_shape(shape);
   analog_oscillator_[1].set_shape(shape);
   analog_oscillator_[2].set_shape(shape);
@@ -363,6 +363,7 @@ MacroOscillator::RenderFn MacroOscillator::fn_table_[] = {
   &MacroOscillator::RenderBuzz,
   &MacroOscillator::RenderTriple,
   &MacroOscillator::RenderTriple,
+  &MacroOscillator::RenderTriple,  
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderDigital,
   &MacroOscillator::RenderSawComb,
