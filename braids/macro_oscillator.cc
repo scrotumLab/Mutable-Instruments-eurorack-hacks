@@ -202,9 +202,14 @@ void MacroOscillator::RenderTriple(
     analog_oscillator_[i + 1].set_pitch(pitch_ + detune + (12 << 7));
   }
 
-  AnalogOscillatorShape shape = (shape_ == MACRO_OSC_SHAPE_TRIPLE_SAW 
-      ? OSC_SHAPE_SAW 
-    : (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE ? OSC_SHAPE_SQUARE : OSC_SHAPE_TRIANGLE));     
+  // AnalogOscillatorShape shape = (shape_ == MACRO_OSC_SHAPE_TRIPLE_SAW 
+  //    ? OSC_SHAPE_SAW 
+  //  : (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE ? OSC_SHAPE_SQUARE : OSC_SHAPE_TRIANGLE));
+  AnalogOscillatorShape shape ;
+  if (shape_ ==  MACRO_OSC_SHAPE_TRIPLE_SAW) shape = OSC_SHAPE_SAW;
+  else if (shape_ == MACRO_OSC_SHAPE_TRIPLE_SQUARE) shape = OSC_SHAPE_SQUARE;
+  else shape = OSC_SHAPE_TRIANGLE;
+      
   analog_oscillator_[0].set_shape(shape);
   analog_oscillator_[1].set_shape(shape);
   analog_oscillator_[2].set_shape(shape);

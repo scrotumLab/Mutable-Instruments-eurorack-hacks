@@ -222,7 +222,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "v1.6", NULL },  // Placeholder for version string
+  { 0, 0, "BBv1", NULL },  // Placeholder for version string
 };
 
 /* static */
