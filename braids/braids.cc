@@ -181,7 +181,20 @@ void RenderBlock() {
   
   const TrigStrikeSettings& trig_strike = \
       trig_strike_settings[settings.GetValue(SETTING_TRIG_AD_SHAPE)];
-  envelope.Update(trig_strike.attack, trig_strike.decay, 0, 0);
+
+  // get FM CV data if meta mode is set for envelopes
+  if (settings.meta_modulation() == 2) {
+    int32_t env_param = settings.adc_to_fm(adc.channel(3));
+    envelope.Update(env_param, trig_strike.decay, 0, 0);
+  }
+  else if (settings.meta_modulation() == 3) {
+    int32_t env_param = settings.adc_to_fm(adc.channel(3));
+    envelope.Update(trig_strike.attack, env_param, 0, 0);  
+  } 
+  else if (settings.meta_modulation() == 4) {
+    int32_t env_param = settings.adc_to_fm(adc.channel(3));
+    envelope.Update(env_param, env_param, 0, 0);  
+  } 
   uint16_t ad_value = envelope.Render();
   uint8_t ad_timbre_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 1
       ? trig_strike.amount
@@ -192,7 +205,7 @@ void RenderBlock() {
   
   if (ui.paques()) {
     osc.set_shape(MACRO_OSC_SHAPE_QUESTION_MARK);
-  } else if (settings.meta_modulation()) {
+  } else if (settings.meta_modulation() == 1) {
     int32_t shape = adc.channel(3);
     shape -= settings.data().fm_cv_offset;
     if (shape > previous_shape + 2 || shape < previous_shape - 2) {
@@ -271,7 +284,6 @@ void RenderBlock() {
     }
     pitch = Interpolate88(lut_vco_detune, pitch << 2);
   }
-
   osc.set_pitch(pitch + settings.pitch_transposition());
 
   if (trigger_flag) {

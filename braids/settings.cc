@@ -84,7 +84,7 @@ void Settings::CheckPaques() {
   paques_ = false;
 }
 
-const char* const boolean_values[] = { "OFF ", "ON " };
+const char* const boolean_values[] = { "OFF ", "ON  " };
 
 const char* const algo_values[] = {
     "CSAW",
@@ -138,7 +138,7 @@ const char* const bits_values[] = {
     "4BIT",
     "6BIT",
     "8BIT",
-    "12B",
+    "12B ",
     "16B " };
     
 const char* const rates_values[] = {
@@ -190,17 +190,25 @@ const char* const trig_destination_values[] = {
     "SYNC",
     "TIMB",
     "LEVL",
-    "T+L",
+    "T+L ",
     "COLR",
-    "T+C",
-    "L+C",
-    "ALL"
+    "T+C ",
+    "L+C ",
+    "ALL "
 };
 
 const char* const brightness_values[] = {
     "\xff   ",
     "\xff\xff  ",
     "\xff\xff\xff\xff",
+};
+
+const char* const meta_values[] = { 
+    "OFF ",
+    "MODL",
+    "ENVA",
+    "ENVD",
+    "ENVB"
 };
 
 /* static */
@@ -211,7 +219,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 7, "TDST", trig_destination_values },
   { 0, 1, "TSRC", trig_source_values },
   { 0, 6, "TDLY", trig_delay_values },
-  { 0, 1, "META", boolean_values },
+  { 0, 4, "META", meta_values },
   { 0, 3, "RANG", pitch_range_values },
   { 0, 4, "OCTV", octave_values },
   { 0, PITCH_QUANTIZATION_LAST - 1, "QNTZ", quantization_values },
