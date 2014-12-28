@@ -181,18 +181,27 @@ void RenderBlock() {
   
   const TrigStrikeSettings& trig_strike = \
       trig_strike_settings[settings.GetValue(SETTING_TRIG_AD_SHAPE)];
+  envelope.Update(trig_strike.attack, trig_strike.decay, 0, 0);
 
-  // get FM CV data if meta mode is set for envelopes
+  // use FM CV data for env params if meta mode is set for envelopes
+  if (settings.meta_modulation() > 1) {
+     int32_t env_param = settings.adc_to_fm(adc.channel(3)) / 32;
+     if (env_param < 0) {
+         env_param = 0 ;
+     }
+     if (env_param > 255) {
+         env_param = 255 ;
+     }    
+  }
   if (settings.meta_modulation() == 2) {
-    int32_t env_param = settings.adc_to_fm(adc.channel(3));
     envelope.Update(env_param, trig_strike.decay, 0, 0);
   }
   else if (settings.meta_modulation() == 3) {
-    int32_t env_param = settings.adc_to_fm(adc.channel(3));
+    int32_t env_param = settings.adc_to_fm(adc.channel(3)) / 32;
     envelope.Update(trig_strike.attack, env_param, 0, 0);  
   } 
   else if (settings.meta_modulation() == 4) {
-    int32_t env_param = settings.adc_to_fm(adc.channel(3));
+    int32_t env_param = settings.adc_to_fm(adc.channel(3)) / 32;
     envelope.Update(env_param, env_param, 0, 0);  
   } 
   uint16_t ad_value = envelope.Render();
@@ -203,9 +212,7 @@ void RenderBlock() {
       ? trig_strike.amount
       : 0;
   
-  if (ui.paques()) {
-    osc.set_shape(MACRO_OSC_SHAPE_QUESTION_MARK);
-  } else if (settings.meta_modulation() == 1) {
+  if (settings.meta_modulation() == 1) {
     int32_t shape = adc.channel(3);
     shape -= settings.data().fm_cv_offset;
     if (shape > previous_shape + 2 || shape < previous_shape - 2) {
@@ -255,7 +262,7 @@ void RenderBlock() {
   } else if (settings.pitch_quantization() == PITCH_QUANTIZATION_SEMITONE) {
     pitch = (pitch + 64) & 0xffffff80;
   }
-  if (!settings.meta_modulation()) {
+  if (settings.meta_modulation() == 0) {
     pitch += settings.adc_to_fm(adc.channel(3));
   }
   

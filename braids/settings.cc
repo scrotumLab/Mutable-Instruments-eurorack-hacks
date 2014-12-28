@@ -46,7 +46,7 @@ const SettingsData kInitSettings = {
   0,  // Trig destination
   false,  // Trig source
   1,  // Trig delay
-  false,  // Meta modulation
+  0,  // Meta modulation
   
   PITCH_RANGE_EXTERNAL,
   2,
@@ -231,7 +231,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "MCN0", NULL },  // Placeholder for version string
+  { 0, 0, "B+T0", NULL },  // Placeholder for version string
 };
 
 /* static */
