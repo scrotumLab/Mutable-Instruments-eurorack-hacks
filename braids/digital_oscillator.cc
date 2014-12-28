@@ -1761,7 +1761,7 @@ const int16_t intervals_b[65] = {
   -11 SEMI + 4, -10 SEMI + 4, -9 SEMI + 4, -8 SEMI + 4,
   -7 SEMI - 6, -7 SEMI + 4,
   -6 SEMI + 4, -5 SEMI + 4, -4 SEMI + 4, -3 SEMI + 4, -2 SEMI + 4, -1 SEMI + 4,
-  -12, -3, -3, 0, 3, 6, 12,
+  -12, -6, -3, 0, 3, 6, 12,
   1 SEMI + 4, 2 SEMI + 4, 3 SEMI + 4, 4 SEMI + 4, 5 SEMI + 4, 6 SEMI + 4,
   7 SEMI - 4, 7 SEMI + 6,
   8 SEMI + 4, 9 SEMI + 4, 10 SEMI + 4, 11 SEMI + 4,
@@ -1772,40 +1772,57 @@ const int16_t intervals_b[65] = {
   24 SEMI - 6, 24 SEMI, 24 SEMI
 };
 
+const int16_t intervals_c[65] = {
+  -4, -4, -3,
+  3, 4, 6, 8, 10, 12,
+  8, 6,
+  4, -4, -8, -6,
+  -4, -3,
+  -2, 3, 4, 6,
+  10, 8,
+  4, 3, -3, -4, -6 , -8,
+  -12, -8, -4, 0, 4, 8, 12,
+  8, 4, 3, -3, -6, -8,
+  -12, -10,
+  -8, -6, -4, -3,
+  4, 6,
+  10, 8, 6, 4,
+  3, -4,
+  -8, -10, -12, -8, -6, -3,
+  4, 6, 6
+};
+
 void DigitalOscillator::RenderWaveDuophonic(
     const uint8_t* sync,
     int16_t* buffer,
     uint8_t size) {
+   
   if (strike_) {
-    for (uint8_t i = 0; i < 2; ++i) {
+    for (uint8_t i = 0; i < 4; ++i) {
       state_.saw.phase[i] = Random::GetWord();
     }
     strike_ = false;
   }
   
   // Do not use an array here to allow these to be kept in arbitrary registers.
-  uint32_t phase_0, phase_1, phase_2;
-  uint32_t phase_increment[2];
+  uint32_t phase_0, phase_1, phase_2, phase_3;
+  uint32_t phase_increment[3];
   uint32_t phase_increment_0;
 
   phase_increment_0 = phase_increment_;
   phase_0 = state_.saw.phase[0];
   phase_1 = state_.saw.phase[1];
   phase_2 = state_.saw.phase[2];
+  phase_3 = state_.saw.phase[3];
 
-
-  // for (uint8_t i = 0; i < 1; ++i) {
-  //   uint16_t detune_1 = chords[parameter_[1] >> 11][i];
-  //   uint16_t detune_2 = chords[((parameter_[1] >> 10) + 1) >> 1][i];
-  //   uint16_t detune_xfade = parameter_[1] << 6;
-  //   uint16_t detune = detune_1 + ((detune_2 - detune_1) * detune_xfade >> 16);
-  //   phase_increment[i] = ComputePhaseIncrement(pitch_ + detune);
-  // }
-
-  for (uint8_t i = 0; i < 2; ++i) {
+  for (uint8_t i = 0; i < 3; ++i) {
     int16_t detune_1 ;
     int16_t detune_2 ;
     if (i == 0) {
+        detune_1 = intervals_c[parameter_[1] >> 9];
+        detune_2 = intervals_c[((parameter_[1] >> 8) + 1) >> 1];
+    }
+    else if (i == 1) {
         detune_1 = intervals_a[parameter_[1] >> 9];
         detune_2 = intervals_a[((parameter_[1] >> 8) + 1) >> 1];
     }
@@ -1814,7 +1831,7 @@ void DigitalOscillator::RenderWaveDuophonic(
         detune_2 = intervals_b[((parameter_[1] >> 8) + 1) >> 1];    
     }
     uint16_t xfade = parameter_[1] << 8;
-    int16_t detune = detune_1 + ((detune_2 - detune_1) * xfade >> 16);
+    uint16_t detune = detune_1 + ((detune_2 - detune_1) * xfade >> 16);
     phase_increment[i] = ComputePhaseIncrement(pitch_ + detune);
   }
 
@@ -1828,21 +1845,24 @@ void DigitalOscillator::RenderWaveDuophonic(
     phase_0 += phase_increment_0;
     phase_1 += phase_increment[0];
     phase_2 += phase_increment[1];
+    phase_3 += phase_increment[2];
 
     sample += Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
     sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
     sample += Crossfade(wave_1, wave_2, phase_2 >> 1, wave_xfade);    
-    // Should this be >> 1 ?
+    sample += Crossfade(wave_1, wave_2, phase_3 >> 1, wave_xfade);
     *buffer++ = sample >> 2;
     
     phase_0 += phase_increment_0;
     phase_1 += phase_increment[0];
     phase_2 += phase_increment[1];
+    phase_3 += phase_increment[2];
     
     sample = 0;
     sample += Crossfade(wave_1, wave_2, phase_0 >> 1, wave_xfade);
     sample += Crossfade(wave_1, wave_2, phase_1 >> 1, wave_xfade);
     sample += Crossfade(wave_1, wave_2, phase_2 >> 1, wave_xfade);    
+    sample += Crossfade(wave_1, wave_2, phase_3 >> 1, wave_xfade);
     *buffer++ = sample >> 2;
     size--;
   }
@@ -1850,6 +1870,7 @@ void DigitalOscillator::RenderWaveDuophonic(
   state_.saw.phase[0] = phase_0;
   state_.saw.phase[1] = phase_1;
   state_.saw.phase[2] = phase_2;
+  state_.saw.phase[3] = phase_3;
 
 }
 
