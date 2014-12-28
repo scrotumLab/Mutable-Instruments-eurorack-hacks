@@ -186,6 +186,9 @@ void RenderBlock() {
   uint8_t ad_timbre_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 1
       ? trig_strike.amount
       : 0;
+  uint8_t ad_color_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 4
+      ? trig_strike.amount
+      : 0;
   
   if (ui.paques()) {
     osc.set_shape(MACRO_OSC_SHAPE_QUESTION_MARK);
@@ -215,7 +218,12 @@ void RenderBlock() {
   if (parameter_1 > 32767) {
     parameter_1 = 32767;
   }
-  osc.set_parameters(parameter_1, adc.channel(1) << 3);
+  uint16_t parameter_2 = adc.channel(1) << 3;
+  parameter_2 += static_cast<uint32_t>(ad_value) * ad_color_amount >> 9;
+  if (parameter_2 > 32767) {
+    parameter_2 = 32767;
+  }
+  osc.set_parameters(parameter_1, parameter_2);
   
   // Apply hysteresis to ADC reading to prevent a single bit error to move
   // the quantized pitch up and down the quantization boundary.

@@ -190,7 +190,11 @@ const char* const trig_destination_values[] = {
     "SYNC",
     "TIMB",
     "LEVL",
-    "BOTH",
+    "T+L",
+    "COLR",
+    "T+C",
+    "L+C",
+    "ALL"
 };
 
 const char* const brightness_values[] = {
@@ -204,7 +208,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, MACRO_OSC_SHAPE_DIGITAL_MODULATION, "WAVE", algo_values },
   { 0, RESOLUTION_LAST - 1, "BITS", bits_values },
   { 0, SAMPLE_RATE_LAST - 1, "RATE", rates_values },
-  { 0, 3, "TDST", trig_destination_values },
+  { 0, 7, "TDST", trig_destination_values },
   { 0, 1, "TSRC", trig_source_values },
   { 0, 6, "TDLY", trig_delay_values },
   { 0, 1, "META", boolean_values },
@@ -219,7 +223,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "BBv4", NULL },  // Placeholder for version string
+  { 0, 0, "MCN0", NULL },  // Placeholder for version string
 };
 
 /* static */
