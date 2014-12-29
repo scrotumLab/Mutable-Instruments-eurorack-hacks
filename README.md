@@ -4,12 +4,12 @@ audio synthesiser modules.
 The Braids code has been modified to add various features:
 * Square-sawtooth-triangle triple oscillator model
 * Triple triangle oscillator model
-* Trile sine wave oscillator model
+* Triple sine wave oscillator model
 * WTx2 duophonic wavetable model with second voice offset controlled by the Color parameter
 * Color is now also a target for the internal envelope
 * Voltage control over the attack and decay of the internal envelope, via the FM input, as in the existing META mode.
 
-The forks of source code for the following modules are here: 
+Forks of source code for the following modules are here: 
 * Braids: Macro-oscillator.
 * Edges: Quad chiptune digital oscillator.
 * Ripples: Liquid 2-pole BP, 2-pole LP and 4-pole LP filter.
