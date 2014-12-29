@@ -8,7 +8,8 @@ The Braids code has been modified to add various features:
 * WTx2 duophonic wavetable model with second voice offset controlled by the Color parameter
 * Color is now also a target for the internal envelope
 * Voltage control over the attack and decay of the internal envelope, via the FM input, as in the existing META mode.
- 
+
+The forks of source code for the following modules are here: 
 * Braids: Macro-oscillator.
 * Edges: Quad chiptune digital oscillator.
 * Ripples: Liquid 2-pole BP, 2-pole LP and 4-pole LP filter.
@@ -18,6 +19,8 @@ The Braids code has been modified to add various features:
 * Tides: Tidal modulator.
 * Yarns: MIDI interface.
 * Volts: +5V power module.
+
+Upstream code can be found at https://github.com/pichenettes/eurorack
 
 License
 =======
