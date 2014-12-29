@@ -183,9 +183,14 @@ void RenderBlock() {
       trig_strike_settings[settings.GetValue(SETTING_TRIG_AD_SHAPE)];
   envelope.Update(trig_strike.attack, trig_strike.decay, 0, 0);
 
+  // Note: all sorts of implicit casts in the following, I think
+
   // use FM CV data for env params if meta mode is set for envelopes
+  int32_t env_param = 0;
   if (settings.meta_modulation() > 1) {
-     int32_t env_param = settings.adc_to_fm(adc.channel(3)) / 32;
+     // scaling this by 32 seems about right.
+     env_param = settings.adc_to_fm(adc.channel(3)) / 32;
+    // Clip at zero and 255 (or do the env params only go to 127?)
      if (env_param < 0) {
          env_param = 0 ;
      }
@@ -193,25 +198,92 @@ void RenderBlock() {
          env_param = 255 ;
      }    
   }
+
+  // attack and decay parameters, default to FM voltage reading.
+  uint16_t env_a = env_param;
+  uint16_t env_d = env_param;
+
+  // 2 is CV control of attack
   if (settings.meta_modulation() == 2) {
     envelope.Update(env_param, trig_strike.decay, 0, 0);
   }
+  // 3 is CV control of decay
   else if (settings.meta_modulation() == 3) {
-    int32_t env_param = settings.adc_to_fm(adc.channel(3)) / 32;
     envelope.Update(trig_strike.attack, env_param, 0, 0);  
   } 
+  // The rest are ratios of attack to decay, from A/D = 0.1 
+  // through to A/D=0.9, then A=D, then D/A = 0.9 down to 0.1
+  //TO-DO: these ratios need to be linearised!  
   else if (settings.meta_modulation() == 4) {
-    int32_t env_param = settings.adc_to_fm(adc.channel(3)) / 32;
-    envelope.Update(env_param, env_param, 0, 0);  
+    env_a = (env_param * 10) / 100; 
   } 
+  else if (settings.meta_modulation() == 5) {
+    env_a = (env_param * 20) / 100; 
+  } 
+  else if (settings.meta_modulation() == 6) {
+    env_a = (env_param * 30) / 100; 
+  } 
+  else if (settings.meta_modulation() == 7) {
+    env_a = (env_param * 40) / 100; 
+  } 
+  else if (settings.meta_modulation() == 8) {
+    env_a = (env_param * 50) / 100; 
+  } 
+  else if (settings.meta_modulation() == 9) {
+    env_a = (env_param * 60) / 100; 
+  } 
+  else if (settings.meta_modulation() == 10) {
+    env_a = (env_param * 70) / 100; 
+  } 
+  else if (settings.meta_modulation() == 11) {
+    env_a = (env_param * 80) / 100; 
+  } 
+  else if (settings.meta_modulation() == 12) {
+    env_a = (env_param * 90) / 100; 
+  } 
+  // 13 is deliberately missing because env_a already equals env_d
+  else if (settings.meta_modulation() == 14) {
+    env_d = (env_param * 90) / 100; 
+  } 
+  else if (settings.meta_modulation() == 15) {
+    env_d = (env_param * 80) / 100; 
+  } 
+  else if (settings.meta_modulation() == 16) {
+    env_d = (env_param * 70) / 100; 
+  } 
+  else if (settings.meta_modulation() == 17) {
+    env_d = (env_param * 60) / 100; 
+  } 
+  else if (settings.meta_modulation() == 18) {
+    env_d = (env_param * 50) / 100; 
+  } 
+  else if (settings.meta_modulation() == 19) {
+    env_d = (env_param * 40) / 100; 
+  } 
+  else if (settings.meta_modulation() == 20) {
+    env_d = (env_param * 30) / 100; 
+  } 
+  else if (settings.meta_modulation() == 21) {
+    env_d = (env_param * 20) / 100; 
+  } 
+  else if (settings.meta_modulation() == 22) {
+    env_d = (env_param * 10) / 100; 
+  } 
+  // now set the attack and decay parameters again
+  if (settings.meta_modulation() > 3) {
+    envelope.Update(env_a, env_d, 0, 0);  
+  }
+
   uint16_t ad_value = envelope.Render();
   uint8_t ad_timbre_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 1
       ? trig_strike.amount
       : 0;
+  // added Color as an envelope destination
   uint8_t ad_color_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 4
       ? trig_strike.amount
       : 0;
-  
+
+  // meta_modulation no longer a boolean  
   if (settings.meta_modulation() == 1) {
     int32_t shape = adc.channel(3);
     shape -= settings.data().fm_cv_offset;

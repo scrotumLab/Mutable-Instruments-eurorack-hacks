@@ -206,9 +206,27 @@ const char* const brightness_values[] = {
 const char* const meta_values[] = { 
     "OFF ",
     "MODL",
-    "ENVA",
-    "ENVD",
-    "ENVB"
+    "ATTK",
+    "DCAY",
+    "AD.1",
+    "AD.2",
+    "AD.3",
+    "AD.4",
+    "AD.5",
+    "AD.6",
+    "AD.7",
+    "AD.8",
+    "AD.9",
+    "A=D ",
+    "DA.9",
+    "DA.8",
+    "DA.7",
+    "DA.6",
+    "DA.5",
+    "DA.4",
+    "DA.3",
+    "DA.2",
+    "DA.1"    
 };
 
 /* static */
@@ -219,7 +237,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 7, "TDST", trig_destination_values },
   { 0, 1, "TSRC", trig_source_values },
   { 0, 6, "TDLY", trig_delay_values },
-  { 0, 4, "META", meta_values },
+  { 0, 22, "META", meta_values },
   { 0, 3, "RANG", pitch_range_values },
   { 0, 4, "OCTV", octave_values },
   { 0, PITCH_QUANTIZATION_LAST - 1, "QNTZ", quantization_values },
@@ -231,7 +249,7 @@ const SettingMetadata Settings::metadata_[] = {
   { 0, 0, "CAL.", NULL },
   { 0, 0, "    ", NULL },  // Placeholder for CV tester
   { 0, 0, "    ", NULL },  // Placeholder for marquee
-  { 0, 0, "B+T0", NULL },  // Placeholder for version string
+  { 0, 0, "BnT1", NULL },  // Placeholder for version string
 };
 
 /* static */
