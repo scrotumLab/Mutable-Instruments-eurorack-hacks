@@ -170,6 +170,33 @@ const TrigStrikeSettings trig_strike_settings[] = {
   { 60, 100, 70 },
   { 40, 72, 60 },
   { 34, 60, 20 },
+  { 0, 90,  5 },
+  { 0, 90, 10 },
+  { 0, 90, 20 },
+  { 0, 90, 30 },
+  { 0, 90, 40 },
+  { 0, 90, 50 },
+  { 0, 90, 60 },
+  { 0, 90, 70 },
+  { 0, 90, 80 },
+  { 0, 90, 90 },
+  { 0, 90, 100 },
+  { 0, 90, 110 },
+  { 0, 90, 120 },
+  { 0, 90, 130 },
+  { 0, 90, 140 },
+  { 0, 90, 150 },
+  { 0, 90, 160 },
+  { 0, 90, 170 },
+  { 0, 90, 180 },
+  { 0, 90, 190 },
+  { 0, 90, 200 },
+  { 0, 90, 210 },
+  { 0, 90, 220 },
+  { 0, 90, 230 },
+  { 0, 90, 240 },
+  { 0, 90, 250 },
+  { 0, 90, 255 },
 };
 
 void RenderBlock() {
@@ -186,17 +213,23 @@ void RenderBlock() {
   // Note: all sorts of implicit casts in the following, I think
 
   // use FM CV data for env params if meta mode is set for envelopes
+  // of LFO
+  // Note, we invert the parameter if in LFO mode, so higher 
   int32_t env_param = 0;
   if (settings.meta_modulation() > 1) {
-     // scaling this by 32 seems about right.
-     env_param = settings.adc_to_fm(adc.channel(3)) / 32;
-    // Clip at zero and 255 (or do the env params only go to 127?)
+     // scaling this by 32 seems about right for 0-5V modulation range.
+     env_param = settings.adc_to_fm(adc.channel(3)) >> 5;
+    // Clip at zero and 127
      if (env_param < 0) {
          env_param = 0 ;
      }
-     if (env_param > 255) {
-         env_param = 255 ;
-     }    
+     if (env_param > 127) {
+         env_param = 127 ;
+     } 
+     // Invert if in LFO mode, so higher CVs create higher LFO frequency.
+     if (settings.meta_modulation() > 20) {
+         env_param = 127 - env_param ;
+     }  
   }
 
   // attack and decay parameters, default to FM voltage reading.
@@ -211,35 +244,35 @@ void RenderBlock() {
   else if (settings.meta_modulation() == 3) {
     envelope.Update(trig_strike.attack, env_param, 0, 0);  
   } 
-  // The rest are ratios of attack to decay, from A/D = 0.1 
-  // through to A/D=0.9, then A=D, then D/A = 0.9 down to 0.1
-  //TO-DO: these ratios need to be linearised!  
+  // The rest are ratios of attack to decay, from A/D = 0.02 
+  // through to A/D=0.75, then A=D, then D/A = 0.75 down to 0.02
+  // as listed in meta_values in settings.cc
   else if (settings.meta_modulation() == 4) {
-    env_a = (env_param * 10) / 100; 
+    env_a = (env_param * 2) / 100; 
   } 
   else if (settings.meta_modulation() == 5) {
-    env_a = (env_param * 20) / 100; 
+    env_a = (env_param * 5) / 100; 
   } 
   else if (settings.meta_modulation() == 6) {
-    env_a = (env_param * 30) / 100; 
+    env_a = (env_param * 10) / 100; 
   } 
   else if (settings.meta_modulation() == 7) {
-    env_a = (env_param * 40) / 100; 
+    env_a = (env_param * 15) / 100; 
   } 
   else if (settings.meta_modulation() == 8) {
-    env_a = (env_param * 50) / 100; 
+    env_a = (env_param * 20) / 100; 
   } 
   else if (settings.meta_modulation() == 9) {
-    env_a = (env_param * 60) / 100; 
+    env_a = (env_param * 30) / 100; 
   } 
   else if (settings.meta_modulation() == 10) {
-    env_a = (env_param * 70) / 100; 
+    env_a = (env_param * 40) / 100; 
   } 
   else if (settings.meta_modulation() == 11) {
-    env_a = (env_param * 80) / 100; 
+    env_a = (env_param * 50) / 100; 
   } 
   else if (settings.meta_modulation() == 12) {
-    env_a = (env_param * 90) / 100; 
+    env_d = (env_param * 75) / 100; 
   } 
   // 13 is deliberately missing because env_a already equals env_d
   else if (settings.meta_modulation() == 14) {
@@ -258,23 +291,45 @@ void RenderBlock() {
     env_d = (env_param * 50) / 100; 
   } 
   else if (settings.meta_modulation() == 19) {
-    env_d = (env_param * 40) / 100; 
+    env_d = (env_param * 25) / 100; 
   } 
   else if (settings.meta_modulation() == 20) {
-    env_d = (env_param * 30) / 100; 
-  } 
-  else if (settings.meta_modulation() == 21) {
-    env_d = (env_param * 20) / 100; 
-  } 
-  else if (settings.meta_modulation() == 22) {
     env_d = (env_param * 10) / 100; 
   } 
+  // 21, 22 and 23 also missing because for now we'll use A=D
+  // for exponential curve, triangle and wiggly LFO modes.
+  else if (settings.meta_modulation() == 24) {
+    // Sawtooth LFO
+    env_d =  0; 
+  } 
+  else if (settings.meta_modulation() == 25) {
+    // Ramp LFO
+    env_a =  0; 
+  } 
+  
   // now set the attack and decay parameters again
+  // using the modified attack and decay values
   if (settings.meta_modulation() > 3) {
     envelope.Update(env_a, env_d, 0, 0);  
   }
-
-  uint16_t ad_value = envelope.Render();
+  // Render envelope in LFO mode, or not
+  uint16_t ad_value = 0 ;
+  if (settings.meta_modulation() == 21) {
+      // exponential envelope curve
+      ad_value = envelope.Render(true, 0);
+  }
+  else if (settings.meta_modulation() == 22 || settings.meta_modulation() > 23) {
+      // linear envelope curve
+      ad_value = envelope.Render(true, 1);
+  }
+  else if (settings.meta_modulation() == 23) {
+      // wiggly envelope curve
+      ad_value = envelope.Render(true, 2);
+  }
+  else {
+      // envelope mode, exponential curve
+      ad_value = envelope.Render(false, 0);
+  }
   uint8_t ad_timbre_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 1
       ? trig_strike.amount
       : 0;
@@ -282,7 +337,11 @@ void RenderBlock() {
   uint8_t ad_color_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 4
       ? trig_strike.amount
       : 0;
-
+  // not really needed 
+  uint8_t ad_level_amount = settings.GetValue(SETTING_TRIG_DESTINATION) & 2
+      ? trig_strike.amount
+      : 255;
+  
   // meta_modulation no longer a boolean  
   if (settings.meta_modulation() == 1) {
     int32_t shape = adc.channel(3);
@@ -305,11 +364,13 @@ void RenderBlock() {
   } else {
     osc.set_shape(settings.shape());
   }
+  // modulate timbre
   uint16_t parameter_1 = adc.channel(0) << 3;
   parameter_1 += static_cast<uint32_t>(ad_value) * ad_timbre_amount >> 9;
   if (parameter_1 > 32767) {
     parameter_1 = 32767;
   }
+  // modulate colour
   uint16_t parameter_2 = adc.channel(1) << 3;
   parameter_2 += static_cast<uint32_t>(ad_value) * ad_color_amount >> 9;
   if (parameter_2 > 32767) {
@@ -387,8 +448,20 @@ void RenderBlock() {
   int16_t sample = 0;
   size_t decimation_factor = decimation_factors[settings.data().sample_rate];
   uint16_t bit_mask = bit_reduction_masks[settings.data().resolution];
-  int32_t gain = settings.GetValue(SETTING_TRIG_DESTINATION) & 2
-      ? ad_value : 65535;
+  // use AD envelope value as gain except in LFO mode, when it is used as 
+  // negative gain from full volume.
+  int32_t gain = 0 ;
+  if (settings.GetValue(SETTING_TRIG_DESTINATION) & 2) {
+      if (settings.GetValue(SETTING_META_MODULATION) > 20) {
+          gain = 65535 - ((ad_value >> 8) * ad_level_amount) ;
+      }
+      else {
+          gain = ad_value ;
+      }
+   }
+   else {
+      gain = 65535;
+   }
   for (size_t i = 0; i < kAudioBlockSize; ++i) {
     if ((i % decimation_factor) == 0) {
       sample = render_buffer[i] & bit_mask;

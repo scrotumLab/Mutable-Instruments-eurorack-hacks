@@ -1796,12 +1796,13 @@ void DigitalOscillator::RenderWaveDuophonic(
     const uint8_t* sync,
     int16_t* buffer,
     uint8_t size) {
-   
-  if (strike_) {
-    for (uint8_t i = 0; i < 4; ++i) {
-      state_.saw.phase[i] = Random::GetWord();
-    }
-    strike_ = false;
+  
+  // Only reset phase on 2nd and 4th oscillators to reduce clicks
+  if (strike_ ) {
+   for (uint8_t i = 0; i < 4; ++i) {
+     state_.saw.phase[i] = Random::GetWord() ;
+   }
+   strike_ = false;
   }
   
   // Do not use an array here to allow these to be kept in arbitrary registers.
@@ -1815,7 +1816,7 @@ void DigitalOscillator::RenderWaveDuophonic(
   phase_2 = state_.saw.phase[2];
   phase_3 = state_.saw.phase[3];
 
-  for (uint8_t i = 0; i < 3; ++i) {
+  for (uint8_t i = 0; i < 4; ++i) {
     int16_t detune_1 ;
     int16_t detune_2 ;
     if (i == 0) {
@@ -1831,7 +1832,7 @@ void DigitalOscillator::RenderWaveDuophonic(
         detune_2 = intervals_b[((parameter_[1] >> 8) + 1) >> 1];    
     }
     uint16_t xfade = parameter_[1] << 8;
-    uint16_t detune = detune_1 + ((detune_2 - detune_1) * xfade >> 16);
+    uint16_t detune = detune_1 + ((detune_2 - detune_1) * xfade >> 16) ;
     phase_increment[i] = ComputePhaseIncrement(pitch_ + detune);
   }
 
