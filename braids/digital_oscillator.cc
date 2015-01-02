@@ -1797,7 +1797,7 @@ void DigitalOscillator::RenderWaveDuophonic(
     int16_t* buffer,
     uint8_t size) {
   
-  // Only reset phase on 2nd and 4th oscillators to reduce clicks
+  // Note: this causes audible clicks if not used with a level envelope
   if (strike_ ) {
    for (uint8_t i = 0; i < 4; ++i) {
      state_.saw.phase[i] = Random::GetWord() ;
