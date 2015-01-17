@@ -1,3 +1,9 @@
+# DEPRECATED - DO NOT USE THIS REPOSITORY!
+
+NOTE: This repository is deprecated, and has been superseded by the [Mutated-Mutables](https://github.com/timchurches/Mutated-Mutables) repository at https://github.com/timchurches/Mutated-Mutables Please clone or fork that repository instead.
+
+----------------------------
+
 This repository is a fork of the code released by Mutable Instruments for its range of 
 audio synthesiser modules. 
 
